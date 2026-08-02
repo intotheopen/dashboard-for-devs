@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 *.log
 .streamlit/secrets.toml
+# Symlink to sibling backend data/ — recreated by scripts/ensure-shared-data.sh
+/data

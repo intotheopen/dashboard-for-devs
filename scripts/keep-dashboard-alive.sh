@@ -6,6 +6,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# Keep ./data → sibling backend data/ so npy/jsonl/csv stay shared.
+bash "$ROOT/scripts/ensure-shared-data.sh"
+
 PARENT="$(dirname "$ROOT")"
 for candidate in \
   "$PARENT/intotheopen-backend" \

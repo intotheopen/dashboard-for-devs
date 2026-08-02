@@ -36,6 +36,9 @@ section_header(
 **Predicted** = model forecast.
 **Actual** = engagement after re-scrape (or known actuals in backtest).
 
+**Lane A** (`same_age`) arrives already **validated** from Collect — no Apify wait.
+**Lane B** fixed-horizon rows stay **scheduled** until rescrape is due.
+
 Use the sidebar to run due validations or force-validate selected rows.
 """,
 )
