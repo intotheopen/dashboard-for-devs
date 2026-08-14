@@ -15,6 +15,7 @@ sibling checkout named ``intotheopen-backend`` / ``ITO-RND``.
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -42,6 +43,11 @@ import streamlit as st
 from dashboard.dev_postgres_ui import render_dev_postgres_setup
 from dashboard.invite_gate import invite_configured, require_invite
 
+
+def _show_local_db_setup() -> bool:
+    flag = os.getenv("SHOW_LOCAL_DB_SETUP", "true").strip().lower()
+    return flag in {"1", "true", "yes", "on"}
+
 _PAGES = Path(__file__).resolve().parent / "pages"
 _VALIDATION = _PAGES / "validation"
 
@@ -51,13 +57,14 @@ st.set_page_config(page_title="ITO Dev Dashboard", layout="wide")
 if invite_configured():
     require_invite()
 
-try:
-    with st.sidebar:
-        render_dev_postgres_setup(compact=True)
-except Exception as exc:
-    # Never blank the whole harness if local DB diagnostics fail.
-    with st.sidebar:
-        st.caption(f"Postgres check skipped: {exc}")
+if _show_local_db_setup():
+    try:
+        with st.sidebar:
+            render_dev_postgres_setup(compact=True)
+    except Exception as exc:
+        # Never blank the whole harness if local DB diagnostics fail.
+        with st.sidebar:
+            st.caption(f"Postgres check skipped: {exc}")
 
 pg = st.navigation(
     {
