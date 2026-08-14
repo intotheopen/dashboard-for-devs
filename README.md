@@ -8,6 +8,17 @@ corpus pipeline, validation, feedback loop, evaluation cycle, and agentic ops.
 Backend logic lives in [`intotheopen/intotheopen-backend`](https://github.com/intotheopen/intotheopen-backend).
 This repo only contains the Streamlit UI and imports backend Python packages.
 
+## Vector Platform Ownership
+
+This repo now also owns vector platform schema contracts under
+`vector_platform/sql/`.
+
+- Source-of-truth schema: `vector_platform/sql/001_ito_posts_schema.sql`
+- Apply helper: `scripts/apply-vector-schema.sh`
+
+The backend can consume this external schema by setting `VECTOR_SCHEMA_PATH`
+in the backend environment to this file path.
+
 ## Setup (sibling checkouts)
 
 ```bash
@@ -69,6 +80,17 @@ streamlit run dashboard/app.py
 ```
 
 Open http://localhost:8501
+
+## Deploy on same EC2 (ops.intotheopen.ai)
+
+This repo is deployed behind `oauth2-proxy` in the backend compose stack.
+
+- Container build: `Dockerfile.ops`
+- Compose overlay: `../intotheopen-backend/deploy/compose.ops.yml`
+- Nginx TLS/auth edge: `../intotheopen-backend/deploy/nginx/ito-ops.conf`
+
+Access policy is controlled by Google sign-in and the allowlist file:
+`../intotheopen-backend/deploy/oauth2-proxy/allowed_emails`.
 
 ## How dependency works
 

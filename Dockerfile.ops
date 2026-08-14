@@ -1,0 +1,22 @@
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /opt
+
+# Build context is expected to be the parent folder containing both sibling repos:
+# - intotheopen-backend/
+# - dashboard-for-devs/
+COPY intotheopen-backend /opt/intotheopen-backend
+COPY dashboard-for-devs /opt/dashboard-for-devs
+
+RUN pip install -r /opt/intotheopen-backend/requirements.txt
+RUN pip install -r /opt/dashboard-for-devs/requirements.txt
+RUN pip install -e /opt/intotheopen-backend
+
+WORKDIR /opt/dashboard-for-devs
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "dashboard/app.py", "--server.address=0.0.0.0", "--server.port=8501"]
