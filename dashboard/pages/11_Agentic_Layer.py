@@ -8,7 +8,11 @@ import streamlit as st
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 from dashboard.dev_postgres_ui import require_postgres_for_page  # noqa: E402
-from phase_10.ui import render_agentic_layer  # noqa: E402
+
+try:
+    from phase_10.ui import render_agentic_layer  # noqa: E402
+except ModuleNotFoundError:
+    render_agentic_layer = None
 
 st.set_page_config(page_title="Agentic Layer", layout="wide")
 st.title("Agentic Layer")
@@ -19,6 +23,15 @@ st.caption(
 )
 
 if not require_postgres_for_page():
+    st.stop()
+
+if render_agentic_layer is None:
+    st.error("Agentic UI module is missing (`phase_10.ui`).")
+    st.info(
+        "This deployment does not include the phase_10 package expected by "
+        "the Agentic tab. Sync the backend source used for the dashboard build "
+        "or disable this page in production."
+    )
     st.stop()
 
 render_agentic_layer()

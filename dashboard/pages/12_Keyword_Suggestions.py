@@ -22,12 +22,31 @@ def _keyword_suggestions_mod():
     """Reload so a long-lived Streamlit process picks up classifier/scrape fixes."""
     import importlib
 
-    import processors.keyword_suggestions as mod
+    try:
+        import processors.keyword_suggestions as mod
+    except ModuleNotFoundError:
+        return None
 
     return importlib.reload(mod)
 
 
 _ks = _keyword_suggestions_mod()
+if _ks is None:
+    page_header(
+        "Keyword suggestions",
+        "Suggest keyword ideas from LinkedIn URLs.",
+        step_hint="Optional helper",
+    )
+    st.error(
+        "Keyword suggestions module is not available in this deployment "
+        "(`processors.keyword_suggestions` missing)."
+    )
+    st.info(
+        "Sync/rebuild the backend source used by the dashboard image, or "
+        "disable this page until that module is added."
+    )
+    st.stop()
+
 classify_linkedin_url = _ks.classify_linkedin_url
 run_keyword_suggestions = _ks.run_keyword_suggestions
 
