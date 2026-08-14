@@ -13,7 +13,6 @@ COPY dashboard-for-devs /opt/dashboard-for-devs
 
 RUN pip install -r /opt/intotheopen-backend/requirements.txt
 RUN pip install -r /opt/dashboard-for-devs/requirements.txt
-RUN pip install -e /opt/intotheopen-backend
 
 WORKDIR /opt/dashboard-for-devs
 
