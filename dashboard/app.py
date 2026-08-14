@@ -32,7 +32,9 @@ for _candidate in (
     if (_candidate / "config" / "settings.py").is_file():
         _backend = str(_candidate.resolve())
         if _backend not in sys.path:
-            sys.path.insert(0, _backend)
+            # Keep this app's own `dashboard` package first so backend's
+            # separate `dashboard/` folder does not shadow local modules.
+            sys.path.append(_backend)
         break
 
 import streamlit as st
