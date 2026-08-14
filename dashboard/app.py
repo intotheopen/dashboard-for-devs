@@ -51,7 +51,10 @@ def _show_local_db_setup() -> bool:
 
 
 def _module_available(module_name: str) -> bool:
-    return find_spec(module_name) is not None
+    try:
+        return find_spec(module_name) is not None
+    except ModuleNotFoundError:
+        return False
 
 _PAGES = Path(__file__).resolve().parent / "pages"
 _VALIDATION = _PAGES / "validation"
