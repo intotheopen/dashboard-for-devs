@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import os
 import sys
+from importlib.util import find_spec
 from pathlib import Path
 
 _DASHBOARD_ROOT = Path(__file__).resolve().parent.parent
@@ -48,6 +49,10 @@ def _show_local_db_setup() -> bool:
     flag = os.getenv("SHOW_LOCAL_DB_SETUP", "true").strip().lower()
     return flag in {"1", "true", "yes", "on"}
 
+
+def _module_available(module_name: str) -> bool:
+    return find_spec(module_name) is not None
+
 _PAGES = Path(__file__).resolve().parent / "pages"
 _VALIDATION = _PAGES / "validation"
 
@@ -66,95 +71,103 @@ if _show_local_db_setup():
         with st.sidebar:
             st.caption(f"Postgres check skipped: {exc}")
 
-pg = st.navigation(
-    {
-        "Start here": [
-            st.Page(
-                str(_PAGES / "0_Home.py"),
-                title="Home",
-                icon=":material/home:",
-                default=True,
-            ),
-            st.Page(
-                str(_PAGES / "0_Documents.py"),
-                title="Documents",
-                icon=":material/description:",
-            ),
-        ],
-        "Build the corpus": [
-            st.Page(
-                str(_PAGES / "12_Keyword_Suggestions.py"),
-                title="Keyword suggestions",
-                icon=":material/key:",
-            ),
-            st.Page(
-                str(_PAGES / "1_Scraper_Stage.py"),
-                title="Collect samples",
-                icon=":material/search:",
-            ),
-            st.Page(
-                str(_PAGES / "2_Post_Analyser.py"),
-                title="Analyse posts",
-                icon=":material/analytics:",
-            ),
-            st.Page(
-                str(_PAGES / "3_Pattern_Analysis.py"),
-                title="Find patterns",
-                icon=":material/insights:",
-            ),
-            st.Page(
-                str(_PAGES / "4_Vectorisation.py"),
-                title="Make embeddings",
-                icon=":material/grid_on:",
-            ),
-            st.Page(
-                str(_PAGES / "5_Similarity_Search.py"),
-                title="Search similar",
-                icon=":material/manage_search:",
-            ),
-        ],
-        "Check and learn": [
-            st.Page(
-                str(_VALIDATION / "7_Validation_Collect.py"),
-                title="Collect and predict",
-                icon=":material/download:",
-            ),
-            st.Page(
-                str(_VALIDATION / "8_Validation_Queue.py"),
-                title="Validation queue",
-                icon=":material/schedule:",
-            ),
-            st.Page(
-                str(_VALIDATION / "9_Accuracy_History.py"),
-                title="Accuracy over time",
-                icon=":material/monitoring:",
-            ),
-            st.Page(
-                str(_VALIDATION / "10_Feedback_Loop.py"),
-                title="Feedback loop",
-                icon=":material/sync:",
-            ),
-            st.Page(
-                str(_PAGES / "11_Special_Cases.py"),
-                title="Special cases",
-                icon=":material/folder_special:",
-            ),
-        ],
-        "Try it": [
-            st.Page(
-                str(_PAGES / "6_Evaluation_Cycle.py"),
-                title="Draft evaluator",
-                icon=":material/check_circle:",
-            ),
-        ],
-        "Agentic": [
-            st.Page(
-                str(_PAGES / "11_Agentic_Layer.py"),
-                title="Agentic Layer",
-                icon="⚙️",
-            ),
-        ],
-    },
-    position="top",
-)
+_build_corpus_pages = [
+    st.Page(
+        str(_PAGES / "1_Scraper_Stage.py"),
+        title="Collect samples",
+        icon=":material/search:",
+    ),
+    st.Page(
+        str(_PAGES / "2_Post_Analyser.py"),
+        title="Analyse posts",
+        icon=":material/analytics:",
+    ),
+    st.Page(
+        str(_PAGES / "3_Pattern_Analysis.py"),
+        title="Find patterns",
+        icon=":material/insights:",
+    ),
+    st.Page(
+        str(_PAGES / "4_Vectorisation.py"),
+        title="Make embeddings",
+        icon=":material/grid_on:",
+    ),
+    st.Page(
+        str(_PAGES / "5_Similarity_Search.py"),
+        title="Search similar",
+        icon=":material/manage_search:",
+    ),
+]
+
+if _module_available("processors.keyword_suggestions"):
+    _build_corpus_pages.insert(
+        0,
+        st.Page(
+            str(_PAGES / "12_Keyword_Suggestions.py"),
+            title="Keyword suggestions",
+            icon=":material/key:",
+        ),
+    )
+
+_nav_sections = {
+    "Start here": [
+        st.Page(
+            str(_PAGES / "0_Home.py"),
+            title="Home",
+            icon=":material/home:",
+            default=True,
+        ),
+        st.Page(
+            str(_PAGES / "0_Documents.py"),
+            title="Documents",
+            icon=":material/description:",
+        ),
+    ],
+    "Build the corpus": _build_corpus_pages,
+    "Check and learn": [
+        st.Page(
+            str(_VALIDATION / "7_Validation_Collect.py"),
+            title="Collect and predict",
+            icon=":material/download:",
+        ),
+        st.Page(
+            str(_VALIDATION / "8_Validation_Queue.py"),
+            title="Validation queue",
+            icon=":material/schedule:",
+        ),
+        st.Page(
+            str(_VALIDATION / "9_Accuracy_History.py"),
+            title="Accuracy over time",
+            icon=":material/monitoring:",
+        ),
+        st.Page(
+            str(_VALIDATION / "10_Feedback_Loop.py"),
+            title="Feedback loop",
+            icon=":material/sync:",
+        ),
+        st.Page(
+            str(_PAGES / "11_Special_Cases.py"),
+            title="Special cases",
+            icon=":material/folder_special:",
+        ),
+    ],
+    "Try it": [
+        st.Page(
+            str(_PAGES / "6_Evaluation_Cycle.py"),
+            title="Draft evaluator",
+            icon=":material/check_circle:",
+        ),
+    ],
+}
+
+if _module_available("phase_10.ui"):
+    _nav_sections["Agentic"] = [
+        st.Page(
+            str(_PAGES / "11_Agentic_Layer.py"),
+            title="Agentic Layer",
+            icon="⚙️",
+        ),
+    ]
+
+pg = st.navigation(_nav_sections, position="top")
 pg.run()
